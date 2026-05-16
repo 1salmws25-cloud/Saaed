@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماڵپەڕی تاقیکردنەوە</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --background-color: #f5f7fb;
+            --card-color: #ffffff;
+            --text-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--card-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .question-box {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .points-badge {
+            display: inline-block;
+            background-color: #edf2f7;
+            color: #4a5568;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 20px;
+            text-align: right;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #f7fafc;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary-color);
+            background-color: #ebf8ff;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #357abd;
+        }
+
+        .action-btn:disabled {
+            background-color: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            display: none;
+        }
+
+        .score-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .feedback-text {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <!-- پەرەی پرسیارەکان -->
+    <div id="quiz-screen">
+        <h1 id="quiz-title">تاقیکردنەوەی خێرا</h1>
+        <div class="question-box">
+            <span class="points-badge">٢ خاڵ</span>
+            <p class="question-text" id="question-html">پرسیار لێرە دەر دەکەوێت</p>
+            
+            <div class="options-list">
+                <button class="option-btn" onclick="selectOption('A')" id="opt-A">A) وەڵام</button>
+                <button class="option-btn" onclick="selectOption('B')" id="opt-B">B) وەڵام</button>
+                <button class="option-btn" onclick="selectOption('C')" id="opt-C">C) وەڵام</button>
+                <button class="option-btn" onclick="selectOption('D')" id="opt-D">D) وەڵام</button>
+            </div>
+        </div>
+        <button id="next-btn" class="action-btn" onclick="nextQuestion()" disabled>دواتر</button>
+    </div>
+
+    <!-- پەرەی ئەنجام -->
+    <div id="result-screen" class="result-box">
+        <h1>ئەنجامی کۆتایی</h1>
+        <div class="score-text" id="score-html">0</div>
+        <p class="feedback-text" id="feedback-html">هەوڵێکی باشبوو!</p>
+        <button class="action-btn" onclick="restartQuiz()">دووبارە دەستپێکردنەوە</button>
+    </div>
+</div>
+
+<script>
+    // لێرە دەتوانیت پرسیاری زیاتر زیاد بکەیت بە هەمان شێواز
+    const quizData = [
+        {
+            question: "چه ن كه س له م دونيا يه دانه؟",
+            a: "1",
+            b: "3",
+            c: "4",
+            d: "9",
+            correct: "B"
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedAnswer = null;
+
+    const questionElement = document.getElementById('question-html');
+    const optA = document.getElementById('opt-A');
+    const optB = document.getElementById('opt-B');
+    const optC = document.getElementById('opt-C');
+    const optD = document.getElementById('opt-D');
+    const nextButton = document.getElementById('next-btn');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const scoreElement = document.getElementById('score-html');
+
+    function loadQuiz() {
+        deselectOptions();
+        nextButton.disabled = true;
+        selectedAnswer = null;
+
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        // ئەگەر زیاتر لە پرسیارێک هەبوو، ناونیشانەکە دەگۆڕێت بۆ (پرسیاری ١ لە ٢) بۆ نموونە
+        document.getElementById('quiz-title').innerText = `پرسیاری ${currentQuestionIndex + 1} لە ${quizData.length}`;
+        
+        questionElement.innerText = currentQuiz.question;
+        optA.innerText = `A - ${currentQuiz.a}`;
+        optB.innerText = `B - ${currentQuiz.b}`;
+        optC.innerText = `C - ${currentQuiz.c}`;
+        optD.innerText = `D - ${currentQuiz.d}`;
+
+        if (currentQuestionIndex === quizData.length - 1) {
+            nextButton.innerText = "کۆتاییهێنان";
+        } else {
+            nextButton.innerText = "دواتر";
+        }
+    }
+
+    function deselectOptions() {
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+    }
+
+    function selectOption(answer) {
+        deselectOptions();
+        selectedAnswer = answer;
+        
+        // ڕەنگکردنی دوگمە هەڵبژێردراوەکە
+        document.getElementById(`opt-${answer}`).classList.add('selected');
+        nextButton.disabled = false;
+    }
+
+    function nextQuestion() {
+        if (selectedAnswer === quizData[currentQuestionIndex].correct) {
+            score += 2; // هەر پرسیارێک ٢ خاڵ
+        }
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuiz();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        quizScreen.style.display = 'none';
+        resultScreen.style.display = 'block';
+        
+        const totalPoints = quizData.length * 2;
+        scoreElement.innerText = `${score} / ${totalPoints}`;
+
+        const feedback = document.getElementById('feedback-html');
+        if (score === totalPoints) {
+            feedback.innerText = "ناوازەیە! هەموو وەڵامەکانت ڕاست بوون.";
+        } else if (score > 0) {
+            feedback.innerText = "هەوڵێکی باشبوو، بەڵام دەتوانیت باشتر بیت!";
+        } else {
+            feedback.innerText = "بەداخەوە، هیچ وەڵامێکی ڕاست نەبوو. دووبارە تاقی بکەرەوە!";
+        }
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        quizScreen.style.display = 'block';
+        resultScreen.style.display = 'none';
+        loadQuiz();
+    }
+
+    // دەستپێکردنی یەکەمجار لە کاتی کردنەوەی سایتەکە
+    loadQuiz();
+</script>
+
+</body>
+</html>
