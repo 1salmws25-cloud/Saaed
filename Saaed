@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گۆڕەری پێشکەوتووی فۆنت و زەخرەفە</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 5px;
+            font-size: 26px;
+        }
+        .subtitle {
+            color: #718096;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        textarea {
+            width: 100%;
+            height: 90px;
+            padding: 15px;
+            border: 2px solid #cbd5e0;
+            border-radius: 12px;
+            font-size: 18px;
+            resize: none;
+            direction: ltr;
+            text-align: left;
+            outline: none;
+            transition: all 0.3s;
+        }
+        textarea:focus {
+            border-color: #4c51bf;
+            box-shadow: 0 0 10px rgba(76, 81, 191, 0.2);
+        }
+        .generate-btn {
+            background: linear-gradient(135deg, #4c51bf 0%, #667eea 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(76, 81, 191, 0.4);
+        }
+        .generate-btn:active {
+            transform: scale(0.98);
+        }
+        .generate-btn:hover {
+            filter: brightness(1.1);
+        }
+        .results-container {
+            margin-top: 25px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-left: 5px;
+            border-top: 2px dashed #e2e8f0;
+            padding-top: 15px;
+        }
+        .result-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            direction: ltr;
+            transition: all 0.2s;
+        }
+        .result-box:hover {
+            background-color: #edf2f7;
+            border-color: #cbd5e0;
+        }
+        .result-text {
+            font-size: 19px;
+            font-family: 'Courier New', Courier, monospace;
+            word-break: break-all;
+            color: #1a202c;
+            text-align: left;
+            flex-grow: 1;
+        }
+        .copy-btn {
+            background-color: #319795;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+        .copy-btn:hover {
+            background-color: #2c7a7b;
+        }
+        .copy-btn.copied {
+            background-color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>دروستکەری فۆنت و زەخرەفەی ناوازە</h1>
+    <div class="subtitle">شێوازی فۆنتەکانی ئینستاگرام، فەیسبووک و یارییەکان</div>
+    
+    <textarea id="inputText" placeholder="Type English text here... (Saaed)"></textarea>
+    
+    <button class="generate-btn" id="generateBtn">دروستکردنی فۆنتەکان ⚡</button>
+    
+    <div class="results-container" id="results"></div>
+</div>
+
+<script>
+    const inputText = document.getElementById('inputText');
+    const generateBtn = document.getElementById('generateBtn');
+    const resultsContainer = document.getElementById('results');
+
+    // ئەلفوبێی فۆنتە پێشکەوتووەکان
+    const alphabets = {
+        gothic1: {
+            a:'𝔞',b:'𝔔',c:'𝔠',d:'𝔡',e:'𝔢',f:'𝔣',g:'𝔤',h:'𝔥',i:'𝔦',j:'𝔧',k:'𝔨',l:'𝔩',m:'𝔪',n:'𝔫',o:'𝔬',p:'𝔭',q:'𝔮',r:'𝔯',s:'𝔰',t:'𝔱',u:'𝔲',v:'𝔳',w:'𝔴',x:'𝔵',y:'𝔶',z:'𝔷',
+            A:'𝔄',B:'𝔅',C:'𝔆',D:'𝔇',E:'𝔈',F:'𝔉',G:'𝔊',H:'𝔋',I:'𝔌',J:'𝔍',K:'𝔎',L:'𝔏',M:'𝔐',N:'𝔑',O:'𝔒',P:'𝔓',Q:'𝔔',R:'𝔕',S:'𝔖',T:'𝔗',U:'𝔘',V:'𝔙',W:'𝔚',X:'𝔛',Y:'𝔜',Z:'𝔝'
+        },
+        gothic2: {
+            a:'𝖆',b:'𝖇',c:'𝖈',d:'𝖉',e:'𝖊',f:'𝖋',g:' blacksmith',h:'𝖍',i:'𝖎',j:' vandalism',k:'𝖐',l:'𝖑',m:'𝖒',n:'𝖓',o:'𝖔',p:'𝖕',q:'𝖖',r:'𝖗',s:'𝖘',t:'𝖙',u:'𝖚',v:'𝖛',w:'𝖜',x:'𝖝',y:'𝖞',z:'𝖟',
+            A:'𝕬',B:'𝕭',C:'𝕮',D:'𝕯',E:'𝕰',F:'𝕱',G:'𝕲',H:'𝕳',I:'𝕴',J:'𝕵',K:'𝕶',L:'𝕷',M:'𝕸',N:'𝕹',O:'𝕺',P:'𝕻',Q:'𝕼',R:'𝕽',S:'𝕾',T:'𝕿',U:'𝖀',V:'𝖁',W:'𝖂',X:'𝖃',Y:'𝖄',Z:'𝖅'
+        },
+        script1: {
+            a:'𝓪',b:'𝓫',c:'𝓬',d:'𝓭',e:'𝓮',f:'𝓯',g:'𝓰',h:'𝓱',i:'𝓲',j:'𝓳',k:'𝓴',l:'𝓵',m:'𝓶',n:'𝓷',o:'𝓸',p:'𝓹',q:'𝓦',r:'𝓻',s:'𝓼',t:'𝓽',u:'𝓾',v:'𝓿',w:'𝔀',x:'𝔁',y:'𝔂',z:'𝔃',
+            A:'𝓐',B:'𝓑',C:'𝓒',D:'𝓓',E:'𝓔',F:'𝓕',G:'𝓖',H:'𝓗',I:'𝓘',J:'𝓙',K:'𝓚',L:'𝓛',M:'𝓜',N:'𝓝',O:'𝓞',P:'𝓟',Q:'𝓠',R:'𝓡',S:'𝓢',T:'𝓣',U:'𝓤',V:'𝓥',W:'𝓦',X:'𝓳',Y:'𝓨',Z:'𝓩'
+        },
+        script2: {
+            a:'𝒶',b:'𝒷',c:'𝒸',d:'𝒹',e:'𝑒',f:'𝒻',g:'𝑔',h:'𝒽',i:'𝒾',j:'𝒿',k:'𝓀',l:'𝓁',m:'𝓂',n:'𝓃',o:'𝑜',p:'𝓅',q:'𝓆',r:'𝓇',s:'𝓈',t:'𝓉',u:'𝓊',v:'𝓋',w:'𝓌',x:'𝓍',y:'𝓎',z:'𝓏',
+            A:'𝒜',B:'ℬ',C:'𝒞',D:'𝒟',E:'ℰ',F:'ℱ',G:'𝒢',H:'ℋ',I:'ℐ',J:'𝒥',K:'𝒦',L:'ℒ',M:'ℳ',N:'𝒩',O:'𝒪',P:'𝒫',Q:'𝒬',R:'ℛ',S:'𝒮',T:'𝒯',U:'𝒰',V:'𝒱',W:'𝒲',X:'𝒳',Y:'𝒴',Z:'𝒵'
+        },
+        doubleStruck: {
+            a:'𝕒',b:'𝕓',c:'𝕔',d:'𝕕',e:'𝕖',f:'𝕗',g:'𝕘',h:'𝕙',i:'𝕚',j:'𝕛',k:'𝕜',l:'𝕝',m:'𝕞',n:'𝕟',o:'𝕠',p:'𝕡',q:'𝕦',r:'𝕣',s:'𝕤',t:'𝕥',u:'𝕦',v:'𝕧',w:'𝕨',x:'𝕩',y:'𝕪',z:'𝕫',
+            A:'𝔸',B:'𝔹',C:'ℂ',D:'𝔻',E:'𝔼',F:'𝔽',G:'𝔾',H:'ℍ',I:'𝕀',J:'𝕁',K:'𝕂',L:'𝕃',M:'𝕄',N:'ℕ',O:'𝕆',P:'ℙ',Q:'ℚ',R:'ℝ',S:'𝕊',T:'𝕋',U:'𝕌',V:'𝕍',W:'𝕎',X:'𝕏',Y:'𝕐',Z:'ℤ'
+        },
+        wide: {
+            a:'ａ',b:'ｂ',c:'ｃ',d:'ｄ',e:'ｅ',f:'ｆ',g:'ｇ',h:'ｈ',i:'ｉ',j:'ｊ',k:'ｋ',l:'ｌ',m:'ｍ',n:'ｎ',o:'ｏ',p:'ｐ',q:'ｑ',r:'ｒ',s:'ｓ',t:'ｔ',u:'ｕ',v:'ｖ',w:'ｗ',x:'ｘ',y:'ｙ',z:'ｚ',
+            A:'Ｓ',B:'ａ',C:'ａ',D:'ｅ',E:'ｄ',F:'Ａ',G:'Ｂ',H:'Ｃ',I:'Ｄ',J:'Ｅ',K:'Ｆ',L:'Ｇ',M:'Ｈ',N:'Ｉ',O:'Ｊ',P:'Ｋ',Q:'Ｌ',M:'Ｍ',N:'Ｎ',O:'Ｏ',P:'Ｐ',Q:'Ｑ',R:'Ｒ',S:'Ｓ',T:'Ｔ',U:'Ｕ',V:'Ｖ',W:'Ｗ',X:'Ｘ',Y:'Ｙ',Z:'Ｚ'
+        },
+        smallCaps: {
+            a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'ѕ',t:'ᴛ',u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ',
+            A:'ᴀ',B:'ʙ',C:'ᴄ',D:'ᴅ',E:'ᴇ',F:'ꜰ',G:'ɢ',H:'ʜ',I:'ɪ',J:'ᴊ',K:'ᴋ',L:'ʟ',M:'ᴍ',N:'ɴ',O:'ᴏ',P:'ᴘ',Q:'ǫ',R:'ʀ',S:'ѕ',T:'ᴛ',U:'ᴜ',V:'ᴠ',W:'ᴡ',X:'x',Y:'ʏ',Z:'ᴢ'
+        },
+        squaresFilled: {
+            a:'🄰',b:'🄱',c:'🄲',d:'🄳',e:'🄴',f:'🄵',g:'🄶',h:'🄷',i:'🄸',j:'🄹',k:'🄺',l:'🄻',m:'🄼',n:'🄽',o:'🄾',p:'🄿',q:'🅀',r:'🅁',s:'🅂',t:'🅃',u:'🅄',v:'🅅',w:'🅆',x:'🅇',y:'🅈',z:'🅉',
+            A:'🄰',B:'🄱',C:'🄲',D:'🄳',E:'🄴',F:'🄵',G:'🄶',H:'🄷',I:'🄸',J:'🄹',K:'🄺',L:'🄻',M:'🄼',N:'🄽',O:'🄾',P:'🄿',Q:'🅀',R:'🅁',S:'🅂',T:'🅃',U:'🅄',V:'🅅',W:'🅆',X:'🅇',Y:'🅈',Z:'🅉'
+        },
+        boldSerif: {
+            a:'𝐚',b:'𝐛',c:'𝐜',d:'𝐝',e:'𝐞',f:'𝐟',g:'𝐠',h:'𝐡',i:'𝐢',j:'𝐣',k:'𝐤',l:'𝐥',m:'𝐦',n:'𝐧',o:'𝐨',p:'𝐩',q:'𝐪',r:'𝐫',s:'𝐬',t:'𝐭',u:'𝐮',v:'𝐯',w:'𝐰',x:'𝐱',y:'𝐲',z:'𝐳',
+            A:'𝐒',B:'𝐚',C:'𝐚',D:'ｅ',E:'ｄ',F:'𝐀',G:'𝐁',C:'𝐂',D:'𝐃',E:'𝐄',F:'𝐅',G:'𝐆',H:'𝐇',I:'𝐈',J:'𝐉',K:'𝐊',L:'𝐋',M:'𝐌',N:'𝐍',O:'𝐎',P:'𝐏',Q:'𝐐',R:'𝐑',S:'𝐒',T:'𝐓',U:'𝐔',V:'𝐕',W:'𝐖',X:'𝐗',Y:'𝐘',Z:'𝐙'
+        },
+        boldSans: {
+            a:'𝗮',b:'𝗯',c:'𝗰',d:'𝗱',e:'𝗲',f:'𝗳',g:'𝗴',h:'𝗵',i:'𝗶',j:'𝗷',k:'𝗸',l:'𝗹',m:'𝗺',n:'𝗻',o:'𝗼',p:'𝗽',q:'𝗾',r:'𝗿',s:'𝘀',t:'𝘁',u:'𝘂',v:'𝘃',w:'𝘄',x:'𝘅',y:'𝘆',z:'𝘇',
+            A:'𝗦',B:'𝗮',C:'𝗮',D:'𝗲',E:'ｄ',F:'𝗔',G:'𝗕',C:'𝗖',D:'𝗗',E:'𝗘',F:'𝗙',G:'𝗚',H:'𝗛',I:'𝗜',J:'𝗝',K:'𝗞',L:'𝗟',M:'𝗠',N:'𝗡',O:'𝗢',P:'𝗣',Q:'𝗤',R:'𝗥',S:'𝗦',T:'𝗧',U:'𝗨',V:'𝗩',W:'𝗪',X:'𝗫',Y:'𝗬',Z:'𝗭'
+        },
+        thaiStyle: {
+            a:'ค',b:'๒',c:' nutshell',d:'๔',e:'є',f:'ि',g:'g',h:' Nokia',i:'เ',j:'ʝ',k:'к',l:'l',m:'๓',n:'ภ',o:'๏',p:'p',q:'๑',r:'г',s:'ร',t:'t',u:'ย',v:'v',w:'ฬ',x:'א',y:'ץ',z:'ʑ',
+            A:'ภ',B:'๒',C:' nutshell',D:'๔',E:'є',F:'ि',G:'g',H:' Nokia',I:'เ',J:'ʝ',K:'к',L:'l',M:'๓',N:'ภ',O:'๏',P:'p',Q:'๑',R:'г',S:'ร',T:'t',U:'ย',V:'v',W:'ฬ',X:'א',Y:'ץ',Z:'ʑ'
+        },
+        japaneseStyle: {
+            a:'ꪖ',b:'᥇',c:'ᥴ',d:'ᦔ',e:'ꫀ',f:' Kassel',g:'ᧁ',h:'ꫝ',i:'ꪗ',j:'𝕛',k:' surreal',l:'ꪶ',m:'ꪑ',n:'ꪀ',o:'ꪮ',p:'ρ',q:'𝕢',r:'᥅',s:'ꪖ',t:'ꪓ',u:'ꪊ',v:'ꪜ',w:'ꪝ',x:'᥊',y:'ꪗ',z:'ƺ',
+            A:'ꪖ',B:'᥇',C:'ᥴ',D:'ᦔ',E:'ꫀ',F:' Kassel',G:'ᧁ',H:'ꫝ',I:'ꪗ',J:'𝕛',K:' surreal',L:'ꪶ',M:'ꪑ',N:'ꪀ',O:'ꪮ',P:'ρ',Q:'𝕢',R:'᥅',S:'ꪖ',T:'ꪓ',U:'ꪊ',V:'ꪜ',W:'ꪝ',X:'᥊',Y:'ꪗ',Z:'ƺ'
+        }
+    };
+
+    // نەخشەی سەربەرەوخوار کردنی پیتەکان (Flip text)
+    const flipMap = {
+        a:'ɐ',b:'q',c:'ɔ',d:'p',e:'ǝ',f:'ɟ',g:'ƃ',h:'ɥ',i:'ᴉ',j:'ɾ',k:'ʞ',l:'l',m:'ɯ',n:'u',o:'o',p:'d',q:'b',r:'ɹ',s:'s',t:'ʇ',u:'n',v:'ʌ',w:'ʍ',x:'x',y:'ʎ',z:'z',
+        A:'∀',B:'𐐗',C:'Ɔ',D:'◖',E:'Ǝ',F:'Ⅎ',G:'⅁',H:'H',I:'I',J:'Ր',K:'ʞ',L:'˥',M:'W',N:'N',O:'O',P:'Ԁ',Q:'Ό',R:'ᴚ',S:'S',T:'┴',U:'∩',V:'Λ',W:'M',X:'X',Y:'⅄',Z:'Z'
+    };
+
+    // نەخشەی شێوازی تێکەڵاو (Random/Crazy Mix)
+    const crazyChars = {
+        s:'ş', S:'ş', a:'Ⓐ', e:'ᗴ', d:'∂', o:'ʘ', i:'เ', t:'ʇ', m:'ɱ', n:'ภ'
+    };
+
+    // ڕازاندنەوەکانی دەوروبەر (٥٠+ دیزاینی شیک)
+    const decorList = [
+        t => `🐼ඏ  ${t}  🍭👣`,
+        t => `🐦  🎀  ${t}  🎀  🐦`,
+        t => `S⃣   ${t.split('').join('⃣   ')}⃣`,
+        t => `【${t.split('').join('】【')}】`,
+        t => `『${t.split('').join('』『')}』`,
+        t => `≋${t.split('').join('≋')}≋`,
+        t => `░${t.split('').join('░')}░`,
+        t => `(っ◔◡◔)っ ♥ ${t} ♥`,
+        t => `【 ${t}】`,
+        t => `˜”*°•.˜”*°• ${t} •°*”˜.•°*”˜`,
+        t => `[̲̅${t.split('').join('][̲̅')}]`,
+        t => `${t.split('').join('҉')}҉`,
+        t => `${t.split('').join('♥')}♥`,
+        t => `${t.split('').join('͓̽')}͓̽`,
+        t => `§.•´¨'°÷•..×   🎀  ${t}  🎀   ×..•÷°'¨´•.§`,
+        t => `✴  🎀  ${t}  🎀  ✴`,
+        t => `🎂  🎀  ${t}  🎀  🎂`,
+        t => `(¯´•._.•   🎀  ${t}  🎀   •._.•´¯(`,
+        t => `-漫~*'¨¯¨'*·舞~   🎀  ${t}  🎀   ~舞·*'¨¯¨'*~漫-`,
+        t => `🏆😝  ${t}  😂🍪`,
+        t => `💗🍔  ${t}  ♔♜`,
+        t => `😾🍪  ${t}  ♖♟`,
+        t => `💣🍧  ${t}  🎈👣`,
+        t => `😎☆  ${t}  🐉♗`,
+        t => `💜😲  ${t}  ★🐲`,
+        t => `♢♤  ${t}  💘🐻`,
+        t => `🍮👻  ${t}  strawberry🐲`,
+        t => `↤↤↤↤↤ ${t} ↦↦↦↦↦`,
+        t => `🐳💘  ${t}  蛇🎃`,
+        t => `🎀🐠  ${t}  🐣☺`,
+        t => `👌🐨  ${t}  🐼💘`,
+        t => `ൠ♛  ${t}  🎯🍮`,
+        t => `♡♢  ${t}  💔💎`,
+        t => `💘💎  ${t}  🐸☝`,
+        t => `🍟🎈  ${t}  💢☢`,
+        t => `👍🐯  ${t}  🐲♠`,
+        t => `🎄☺  ${t}  🎉🍭`,
+        t => `•´¯`•. ${t} .•´¯`•`,
+        t => `🍟♠  ${t}  🐯🍔`,
+        t => `☆🍮  ${t}  ♪♨`,
+        t => `¸,ø¤º°\`°º¤ø,¸   🎀  ${t}  🎀   ¸,ø¤º°\`°º¤ø,¸`,
+        t => `▀▄▀▄▀▄   🎀  ${t}  🎀   ▄▀▄▀▄▀`,
+        t => `⋆  🎀  ${t}  🎀  ⋆`,
+        t => `꧁ ${t} ꧂`,
+        t => ` ꧁༒☬ ${t} ☬༒꧂ `,
+        t => `彡[ ${t} ]彡`,
+        t => `░▒▓█ ${t} █▓▒░`
+    ];
+
+    // لۆژیکی دروستکردنی شێوازی Glitch (Zalgo)
+    function makeGlitch(text) {
+        const marks = ['\u0305', '\u0332', '\u033f', '\u0311', '\u0306', '\u0310', '\u0352', '\u0351', '\u0325', '\u0326', '\u032b', '\u0328'];
+        return text.split('').map(c => {
+            let res = c;
+            for(let i=0; i<6; i++) {
+                res += marks[Math.floor(Math.random() * marks.length)];
+            }
+            return res;
+        }).join('');
+    }
+
+    function generateAll() {
+        const text = inputText.value.trim();
+        if (!text) {
+            alert('تکایە سەرەتا دەقەکە لێرە بنووسە!');
+            return;
+        }
+
+        let results = [];
+
+        // 1. بەشکردنی فۆنتە جێگیرەکان
+        Object.keys(alphabets).forEach(key => {
+            let converted = text.split('').map(c => alphabets[key][c] || c).join('');
+            results.push(converted);
+        });
+
+        // 2. فۆنتی سەربەرەوخوار (Flip)
+        let flipped = text.split('').reverse().map(c => flipMap[c] || c).join('');
+        results.push(flipped);
+
+        // 3. فۆنتی شێوازی تێکەڵاو (پاندا و شەربەتەکە)
+        let crazy = text.split('').map(c => crazyChars[c] || c).join('');
+        results.push(crazy);
+
+        // 4. فۆنتی Glitch / تێکچوو
+        results.push(makeGlitch(text));
+
+        // 5. فۆنتەکانی هێڵکاری (Strike, Underline...)
+        results.push(text.split('').join('̶') + '̶');
+        results.push(text.split('').join('̴') + '̴');
+        results.push(text.split('').join('̲') + '̲');
+
+        // 6. تێکەڵکردنی فۆنتەکان لەگەڵ دیزاینی دەوروبەر
+        decorList.forEach(dec => {
+            results.push(dec(text));
+        });
+
+        // لێرەدا هەموو ئەنجامەکان ڕێکدەخەین و نیشانی دەدەین
+        let html = '';
+        results.forEach(res => {
+            html += `
+                <div class="result-box">
+                    <span class="result-text">${res}</span>
+                    <button class="copy-btn" onclick="copyText(this)">کۆپی</button>
+                </div>
+            `;
+        });
+        
+        resultsContainer.innerHTML = html;
+    }
+
+    function copyText(button) {
+        const text = button.previousElementSibling.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            button.innerText = 'کۆپی کرا!';
+            button.classList.add('copied');
+            setTimeout(() => {
+                button.innerText = 'کۆپی';
+                button.classList.remove('copied');
+            }, 1500);
+        });
+    }
+
+    generateBtn.addEventListener('click', generateAll);
+</script>
+
+</body>
+</html> 
